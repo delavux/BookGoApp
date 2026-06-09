@@ -1,3 +1,4 @@
+
 import {
   View,
   Text,
@@ -7,7 +8,9 @@ import {
 } from "react-native";
 
 import { useState } from "react";
-import { obterItem, salvarItem } from "../servicos/armazenamento";
+
+import { obterItem } from "../servicos/armazenamento";
+import { api } from "../servicos/api";
 
 export default function TelaAluguel({ route, navigation }: any) {
   const { livro } = route.params;
@@ -21,21 +24,30 @@ export default function TelaAluguel({ route, navigation }: any) {
       return;
     }
 
-    const alugueisSalvos = await obterItem("alugueis");
-    const alugueis = JSON.parse(alugueisSalvos || "[]");
+    try {
+      const usuarioSalvo = await obterItem("usuario");
 
-    if (alugueis.includes(livro.id)) {
-      alert("Livro já alugado");
-      return;
+      if (!usuarioSalvo) {
+        alert("Usuário não encontrado");
+        return;
+      }
+
+      const usuario = JSON.parse(usuarioSalvo);
+
+      await api.post("/alugar", {
+        usuarioId: usuario.id,
+        livroId: livro.id,
+      });
+
+      alert("Livro alugado com sucesso");
+
+      navigation.navigate("Inicio");
+
+    } catch (error) {
+      console.log(error);
+
+      alert("Erro ao alugar livro");
     }
-
-    alugueis.push(livro.id);
-
-    await salvarItem("alugueis", JSON.stringify(alugueis));
-
-    alert("Livro alugado com sucesso");
-
-    navigation.navigate("Painel");
   }
 
   return (
@@ -130,6 +142,7 @@ export default function TelaAluguel({ route, navigation }: any) {
             >
               Autor:
             </Text>
+
             <Text
               style={{
                 fontSize: 16,
@@ -248,3 +261,4 @@ export default function TelaAluguel({ route, navigation }: any) {
     </ScrollView>
   );
 }
+

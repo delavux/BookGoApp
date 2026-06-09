@@ -13,33 +13,48 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import CampoFormulario from "../componentes/CampoFormulario";
 import { cores } from "../tema/cores";
-import { obterItem, salvarItem } from "../servicos/armazenamento";
+import { salvarItem } from "../servicos/armazenamento";
+import { api } from "../servicos/api";
 
 export default function TelaLogin({ navigation }: any) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  async function login() {
-    const usuarioSalvo = await obterItem("usuario");
-
-    if (!usuarioSalvo) {
-      alert("Usuário não encontrado");
-      return;
-    }
-
-    const usuario = JSON.parse(usuarioSalvo);
-
-    if (email === usuario.email && senha === usuario.senha) {
-      alert("Login realizado 😄");
-
-      await salvarItem("logado", "true");
-
-      navigation.navigate("Painel");
-    } else {
-      alert("E-mail ou senha incorretos");
-    }
+  
+async function login() {
+  if (!email || !senha) {
+    alert("Preencha todos os campos");
+    return;
   }
+
+  try {
+    const response = await api.post("/login", {
+      email,
+      senha,
+    });
+
+    const usuario = response.data.usuario;
+
+   await salvarItem(
+  "usuario",
+  JSON.stringify(usuario)
+);
+
+  await salvarItem("logado", "true");
+
+    alert("Login realizado 😄");
+
+    navigation.navigate("Inicio");
+
+  } catch (error) {
+    console.log(error);
+
+    alert("E-mail ou senha incorretos");
+  }
+}
+
+
 
   return (
     <SafeAreaView style={estilos.seguro} edges={["top", "bottom"]}>

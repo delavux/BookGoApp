@@ -15,7 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import CampoFormulario from "../componentes/CampoFormulario";
 import { cores } from "../tema/cores";
 import { ilustracaoCadastro } from "../constantes/imagensLivros";
-import { salvarItem } from "../servicos/armazenamento";
+import { api } from "../servicos/api";
 
 export default function TelaCadastro({ navigation }: any) {
   const [nome, setNome] = useState("");
@@ -27,28 +27,31 @@ export default function TelaCadastro({ navigation }: any) {
   const [cidade, setCidade] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  async function cadastrar() {
-    if (!nome || !email || !senha) {
-      alert("Preencha todos os campos");
-      return;
-    }
+  
+async function cadastrar() {
+  if (!nome || !email || !senha) {
+    alert("Preencha todos os campos");
+    return;
+  }
 
-    const usuario = {
+  try {
+    await api.post("/cadastro", {
       nome,
       email,
       senha,
-      telefone,
-      cpf,
-      endereco,
-      cidade,
-    };
-
-    await salvarItem("usuario", JSON.stringify(usuario));
+    });
 
     alert("Conta criada com sucesso");
 
     navigation.navigate("Entrar");
+
+  } catch (error) {
+    console.log(error);
+
+    alert("Erro ao cadastrar usuário");
   }
+}
+
 
   return (
     <SafeAreaView style={estilos.seguro} edges={["top", "bottom"]}>
