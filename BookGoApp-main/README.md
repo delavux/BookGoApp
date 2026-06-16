@@ -1,3 +1,11 @@
+Autor
+
+Nome: Lucas Samuel
+Matrícula: UC24200878
+
+
+
+
 # 📚 BookGo
 
 Sistema simples de aluguel/delivery de livros desenvolvido com:
